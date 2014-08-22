@@ -5,13 +5,20 @@ from src.fasta_reader import read_fasta
 def main():
     with open(sys.argv[1], "r") as locations:
         with open(sys.argv[2], "r") as fasta:
-            if len(sys.argv) >= 4:
-                seq_extent = int(sys.argv[3])
+            with open(sys.argv[3], "r") as genes_file:
+                genes = []
+                for line in genes_file:
+                    cols = line.strip().split()
+                    if len(cols) < 3:
+                        continue
+                    genes.append((int(cols[0]), int(cols[1]), cols[2]))
+            if len(sys.argv) >= 5:
+                seq_extent = int(sys.argv[4])
             else:
                 seq_extent = 50
             locations = [int(line) for line in locations]
             seqs = read_fasta(fasta)
-            print("Location\t"+"\t".join([seq.header for seq in seqs]))
+            print("Location\t"+"in_genes\t"+"\t".join([seq.header for seq in seqs]))
             for location in locations:
                 bases = [seq.bases[location-1] for seq in seqs]
                 # Condition 1: variation in tail sequences
@@ -27,7 +34,13 @@ def main():
                 if locations_in_range or 'N' in before_seq or 'N' in after_seq or 'n' in before_seq or 'n' in after_seq or '-' in before_seq or '-' in after_seq:
                     continue
                 unique_bases = list(set(bases))
-                print(str(location)+"\t"+"\t".join(bases)+"\t"+before_seq+"["+unique_bases[0]+"/"+unique_bases[1]+"]"+after_seq)
+                # Is SNP in gene?
+                in_genes = [gene[2] for gene in genes if location >= gene[0] and location <= gene[1]]
+                if not in_genes:
+                    in_genes = "no_gene"
+                else:
+                    in_genes = ",".join(in_genes)
+                print(str(location)+"\t"+in_genes+"\t"+"\t".join(bases)+"\t"+before_seq+"["+unique_bases[0]+"/"+unique_bases[1]+"]"+after_seq)
 
 ##################################3
 
