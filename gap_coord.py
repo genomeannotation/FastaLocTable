@@ -21,7 +21,7 @@ def main():
             for index, base in enumerate(bases):
                 if base == "-":
                     gaps.append(index+1)
-            # Genes = [(start, stop, gene_name)]
+            # Genes = [(start, stop, gene_name, strand)]
             genes = []
             for line in coords:
                 cols = line.strip().split()
@@ -31,11 +31,12 @@ def main():
                 start = int(cols[1])
                 end = int(cols[2])
                 name = cols[3]
+                strand = cols[0]
                 # Convert to gapped space
                 start = to_gapped_index(gaps, start)
                 end = to_gapped_index(gaps, end)
                 # Add gene
-                genes.append((start, end, name))
+                genes.append((start, end, name, strand))
             with open("genes.tsv", "w") as genes_file:
                 for gene in genes:
                     genes_file.write("\t".join([str(g) for g in gene])+"\n")
