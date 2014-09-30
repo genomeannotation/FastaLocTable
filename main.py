@@ -8,10 +8,18 @@ def main():
         with open(sys.argv[2], "r") as fasta:
             with open(sys.argv[3], "r") as genes_file:
                 genes = {}
+                repeats = {}
                 for line in genes_file:
                     cols = line.strip().split()
                     if len(cols) < 3:
                         continue
+                    if cols[2] in genes:
+                        if cols[2] in repeats:
+                            repeats[cols[2]] += 1
+                            cols[2] += "_r"+str(repeats[cols[2]])
+                        else:
+                            repeats[cols[2]] = 0
+                            cols[2] += "_r1"
                     genes[cols[2]] = (int(cols[0]), int(cols[1]), cols[3])
             if len(sys.argv) >= 5:
                 seq_extent = int(sys.argv[4])
